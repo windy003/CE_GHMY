@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>测试匹配逻辑</title>
+</head>
+<body>
+    <h1>测试仓库匹配逻辑</h1>
+    <div id="result"></div>
+    
+    <script>
+        // 简单的YAML解析器
+        function parseYAML(yamlText) {
+            const result = {};
+            const lines = yamlText.split('\n');
+            
+            for (const line of lines) {
+                const trimmedLine = line.trim();
+                if (trimmedLine && !trimmedLine.startsWith('#')) {
+                    const colonIndex = trimmedLine.indexOf(':');
+                    if (colonIndex > 0) {
+                        let key = trimmedLine.substring(0, colonIndex).trim();
+                        let value = trimmedLine.substring(colonIndex + 1).trim();
+                        
+                        // 移除键和值的引号
+                        if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+                            key = key.slice(1, -1);
+                        }
+                        if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+                            value = value.slice(1, -1);
+                        }
+                        
+                        result[key] = value;
+                    }
+                }
+            }
+            return result;
+        }
+
+        // 测试数据
+        const yamlContent = `"RootHex200/video_player_app": "无用"
+
+"petr590/Calendar-App": "fork到windy003/Calendar-App"
+
+"UserMr404/simpleCalendar": "问题多多"`;
+
+        // 测试匹配逻辑
+        function testMatching() {
+            const repoStates = parseYAML(yamlContent);
+            console.log('解析结果:', repoStates);
+            
+            const currentRepoUrl = 'https://github.com/RootHex200/video_player_app';
+            const currentRepoName = 'RootHex200/video_player_app';
+            
+            let status = null;
+            let matchKey = null;
+            
+            if (repoStates[currentRepoUrl]) {
+                status = repoStates[currentRepoUrl];
+                matchKey = currentRepoUrl;
+            } else if (repoStates[currentRepoName]) {
+                status = repoStates[currentRepoName];
+                matchKey = currentRepoName;
+            }
+            
+            const resultDiv = document.getElementById('result');
+            if (status) {
+                resultDiv.innerHTML = `
+                    <h2 style="color: green;">匹配成功！</h2>
+                    <p><strong>匹配键:</strong> ${matchKey}</p>
+                    <p><strong>状态:</strong> ${status}</p>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <h2 style="color: red;">未找到匹配</h2>
+                    <p>仓库URL: ${currentRepoUrl}</p>
+                    <p>仓库名称: ${currentRepoName}</p>
+                    <p>可用键: ${Object.keys(repoStates).join(', ')}</p>
+                `;
+            }
+        }
+        
+        // 执行测试
+        testMatching();
+    </script>
+</body>
+</html>

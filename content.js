@@ -20,6 +20,16 @@
     return null;
   }
 
+  // 获取当前仓库的名称（owner/repo格式）
+  function getCurrentRepoName() {
+    const path = window.location.pathname;
+    const pathParts = path.split('/').filter(part => part);
+    if (pathParts.length >= 2) {
+      return `${pathParts[0]}/${pathParts[1]}`;
+    }
+    return null;
+  }
+
   // 通过后台脚本获取远程YAML文件
   async function fetchYAMLFile() {
     try {
@@ -45,8 +55,17 @@
       if (trimmedLine && !trimmedLine.startsWith('#')) {
         const colonIndex = trimmedLine.indexOf(':');
         if (colonIndex > 0) {
-          const key = trimmedLine.substring(0, colonIndex).trim();
-          const value = trimmedLine.substring(colonIndex + 1).trim();
+          let key = trimmedLine.substring(0, colonIndex).trim();
+          let value = trimmedLine.substring(colonIndex + 1).trim();
+          
+          // 移除键和值的引号
+          if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+            key = key.slice(1, -1);
+          }
+          if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+            value = value.slice(1, -1);
+          }
+          
           result[key] = value;
         }
       }
@@ -114,11 +133,13 @@
     }
 
     const currentRepoUrl = getCurrentRepoUrl();
-    if (!currentRepoUrl) {
+    const currentRepoName = getCurrentRepoName();
+    if (!currentRepoUrl || !currentRepoName) {
       return;
     }
 
     console.log('当前仓库URL:', currentRepoUrl);
+    console.log('当前仓库名称:', currentRepoName);
 
     // 显示加载状态
     createResultDisplay('正在检查仓库状态...', false);
@@ -133,10 +154,20 @@
     const repoStates = parseYAML(yamlText);
     console.log('解析的仓库状态:', repoStates);
 
-    // 检查是否有匹配
+    // 检查是否有匹配 - 支持两种格式：完整URL和仓库名称
+    let status = null;
+    let matchKey = null;
+    
     if (repoStates[currentRepoUrl]) {
-      const status = repoStates[currentRepoUrl];
-      createResultDisplay(`匹配找到！状态: ${status}`, true);
+      status = repoStates[currentRepoUrl];
+      matchKey = currentRepoUrl;
+    } else if (repoStates[currentRepoName]) {
+      status = repoStates[currentRepoName];
+      matchKey = currentRepoName;
+    }
+
+    if (status) {
+      createResultDisplay(`匹配找到！键: ${matchKey}<br>状态: ${status}`, true);
     } else {
       createResultDisplay('未找到匹配', false);
     }
