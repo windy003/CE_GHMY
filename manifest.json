@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub仓库状态检查器",
+  "version": "1.0",
+  "description": "在GitHub仓库页面自动检查仓库状态",
+  
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
+  
+  "host_permissions": [
+    "https://github.com/*",
+    "http://windy.run:8000/*"
+  ],
+  
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["yaml-parser.js"],
+      "matches": ["https://github.com/*"]
+    }
+  ]
+}
