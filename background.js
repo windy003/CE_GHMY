@@ -15,7 +15,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // 获取YAML文件的函数
 async function fetchYAMLFile() {
   try {
-    const response = await fetch('http://windy.run:8000/github_repo_state.yaml');
+    // 添加时间戳参数防止缓存，并设置no-cache headers
+    const timestamp = Date.now();
+    const url = `http://windy.run:8000/github_repo_state.yaml?_t=${timestamp}`;
+    
+    const response = await fetch(url, {
+      cache: 'no-cache',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
+    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
