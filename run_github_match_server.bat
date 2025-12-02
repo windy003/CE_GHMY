@@ -1,0 +1,1 @@
+start /B   python  -m http.server   8001  -d  D:\files\using\CE_GHMY

@@ -1,0 +1,1 @@
+CreateObject("Wscript.Shell").Run "D:\files\using\CE_GHMY\run_github_match_server.bat", 0, False
