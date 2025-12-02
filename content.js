@@ -167,7 +167,7 @@
     }
 
     if (status) {
-      createResultDisplay(`匹配找到！键: ${matchKey}<br>状态: ${status}`, true);
+      createResultDisplay(status, true);
     } else {
       createResultDisplay('未找到匹配', false);
     }

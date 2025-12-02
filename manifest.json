@@ -15,7 +15,8 @@
   
   "host_permissions": [
     "https://github.com/*",
-    "http://windy.run:8000/*"
+    "http://*/*",
+    "https://*/*"
   ],
   
   "content_scripts": [
@@ -29,6 +30,8 @@
   "background": {
     "service_worker": "background.js"
   },
+
+  "options_page": "options.html",
   
   "web_accessible_resources": [
     {
